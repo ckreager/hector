@@ -194,8 +194,8 @@ public class EntityManagerImpl implements EntityManager {
 
   @Override
   public void close() {
-    throw new RuntimeException("Method is not implemented");
-
+    this.getEntityManagerFactory().close();
+    //throw new RuntimeException("Method is not implemented");
   }
 
   @Override

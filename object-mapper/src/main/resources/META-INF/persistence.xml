@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+  <persistence-unit name="cassandraPersistenceUnit">
+    <provider>me.prettyprint.hom.CassandraPersistenceProvider</provider>
+    <properties>
+        <property name="me.prettyprint.hom.classpathPrefix" value="com.mycompany"/>			
+        <property name="me.prettyprint.hom.keyspace" value="TestKeyspace"/>
+        <property name="me.prettyprint.hom.clusterName" value="TestPool"/>
+        <property name="me.prettyprint.hom.hostList" value="localhost:9160"/>
+    </properties>
+  </persistence-unit>    
+</persistence>

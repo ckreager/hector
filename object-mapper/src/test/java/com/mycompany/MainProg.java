@@ -2,37 +2,34 @@ package com.mycompany;
 
 import java.util.UUID;
 
-import me.prettyprint.hector.api.Cluster;
-import me.prettyprint.hector.api.Keyspace;
-import me.prettyprint.hector.api.factory.HFactory;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import me.prettyprint.hom.Colors;
-import me.prettyprint.hom.EntityManagerImpl;
 
 public class MainProg {
 
   public static void main(String[] args) {
-    Cluster cluster = HFactory.getOrCreateCluster("TestPool", "localhost:9160");
-    Keyspace keyspace = HFactory.createKeyspace("TestKeyspace", cluster);
-
+    // TODO: Create keyspace "TestKeyspace" and column family "TestColumnFamily" before running test
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("cassandraPersistenceUnit");
+    EntityManager em = emf.createEntityManager();
     try {
-      EntityManagerImpl em = new EntityManagerImpl(keyspace, "com.mycompany");
-
       MyPojo pojo1 = new MyPojo();
       pojo1.setId(UUID.randomUUID());
       pojo1.setLongProp1(123L);
       pojo1.setColor(Colors.RED);
 
-      em.save(pojo1);
+      em.persist(pojo1);
 
       // do some stuff
 
-      MyPojo pojo2 = em.load(MyPojo.class, pojo1.getId());
+      MyPojo pojo2 = em.find(MyPojo.class, pojo1.getId());
 
       // do some more stuff
 
       System.out.println("Color = " + pojo2.getColor());
     } finally {
-      cluster.getConnectionManager().shutdown();
+      emf.close();
     }
   }
 }
