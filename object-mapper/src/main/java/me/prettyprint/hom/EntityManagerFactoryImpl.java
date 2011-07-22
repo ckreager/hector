@@ -25,17 +25,18 @@ import me.prettyprint.hom.EntityManagerImpl;
 
 public class EntityManagerFactoryImpl implements EntityManagerFactory {
 
-  private Logger log = LoggerFactory.getLogger(EntityManagerFactoryImpl.class);
+  private static Logger log = LoggerFactory.getLogger(EntityManagerFactoryImpl.class);
 
   private EntityManagerConfigurator entityManagerConfigurator;
-  private Cluster cluster;
+  private Cluster cluster = null;
+  public boolean isConfiguredCorrectly;
   
   public EntityManagerFactoryImpl() {
     
   }
   
   public EntityManagerFactoryImpl(Map<String, Object> properties) {
-    this(new EntityManagerConfigurator(properties));
+    this( new EntityManagerConfigurator(properties) );
 
     // cassandraHostConfigurator properties
     // Steps:
@@ -46,10 +47,10 @@ public class EntityManagerFactoryImpl implements EntityManagerFactory {
   }
   
   public EntityManagerFactoryImpl(EntityManagerConfigurator entityManagerConfigurator) {
+    this.isConfiguredCorrectly = (entityManagerConfigurator != null);
     this.entityManagerConfigurator = entityManagerConfigurator;
     this.cluster = HFactory.getOrCreateCluster(entityManagerConfigurator.getClusterName(),
         entityManagerConfigurator.getCassandraHostConfigurator());
-
   }
   
   @Override

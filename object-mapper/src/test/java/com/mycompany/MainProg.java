@@ -5,6 +5,7 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import me.prettyprint.hom.CassandraTestBase;
 import me.prettyprint.hom.Colors;
 
 public class MainProg {

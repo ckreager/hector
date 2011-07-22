@@ -48,28 +48,40 @@ public class CassandraPersistenceProvider implements PersistenceProvider {
   @Override
   public EntityManagerFactory createEntityManagerFactory(String emName, Map map) {
     System.out.println("called createEntityManagerFactory(emName=" + emName + ", map)");
-    if ( log.isDebugEnabled() ) {
-      log.debug("creating EntityManagerFactory {} with properties {} ", emName, map);
-    }
+    EntityManagerFactoryImpl emf = null;
+    String errMessage = "unknown";
     if ( map == null || map.isEmpty()) {
-        
         PersistenceProductDerivation pd = new PersistenceProductDerivation();
         try {
             PersistenceUnitInfoImpl pinfo = pd.loadPUI(PersistenceProductDerivation.RSRC_DEFAULT, emName, map);
             if(pinfo == null) {
-                System.out.println("called loadPUI(rsrc="+PersistenceProductDerivation.RSRC_DEFAULT+",emName="+emName+",map), return null"); 
+                errMessage = "called loadPUI(rsrc="+PersistenceProductDerivation.RSRC_DEFAULT+",emName="+emName+",map), return null";
+                log.error(errMessage);
+                System.out.println(errMessage);
                 return null;
             }
             this.defProperties = pinfo.toOpenJPAProperties();
         }
         catch(Exception ex) {
-            System.out.println("called loadPUI(rsrc="+PersistenceProductDerivation.RSRC_DEFAULT+",emName="+emName+",map), Caught Exception: \n" +ex.getMessage());
+            errMessage = "called loadPUI(rsrc="+PersistenceProductDerivation.RSRC_DEFAULT+",emName="+emName+",map), Caught Exception: \n" +ex.getMessage();
+            log.error(errMessage);
+            System.out.println(errMessage);
             return null;
         }
-        
-      return new EntityManagerFactoryImpl(defProperties);
+        map = defProperties;
     }
-    return new EntityManagerFactoryImpl(map);
+    if ( log.isDebugEnabled() ) {
+      log.debug("creating EntityManagerFactory {} with properties {} ", emName, map);
+    }
+    try {
+        return new EntityManagerFactoryImpl(map);
+    }
+    catch(Exception ex) {
+        errMessage = "called EntityManagerFactoryImpl(map) using emName="+emName+", Caught Exception: \n" +ex.getMessage();
+        log.error(errMessage, ex);
+        System.out.println(errMessage);
+        return null;
+    }
   }
 
   @Override
