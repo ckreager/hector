@@ -6,7 +6,9 @@
         <property name="me.prettyprint.hom.classpathPrefix" value="com.mycompany"/>			
         <property name="me.prettyprint.hom.keyspace" value="TestKeyspace"/>
         <property name="me.prettyprint.hom.clusterName" value="TestPool"/>
-        <property name="me.prettyprint.hom.hostList" value="localhost:9160"/>
+        <property name="me.prettyprint.hom.hostList" value="172.16.26.103:9160"/>
+        <property name="me.prettyprint.hom.consistencylevel.keyspace" value='{"WRITE":"ONE","META_WRITE":"ONE","READ":"QUORUM","META_READ":"QUORUM"}'/>
+        <property name="me.prettyprint.hom.consistencylevel.columnfamilies" value='{"TestColumnFamily":{"WRITE":"ONE","READ":"QUORUM"}}'/>
     </properties>
   </persistence-unit>    
 </persistence>

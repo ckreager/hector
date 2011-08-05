@@ -12,16 +12,20 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
+import me.prettyprint.cassandra.service.OperationType;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.prettyprint.hector.api.Cluster;
+import me.prettyprint.hector.api.ConsistencyLevelPolicy;
+import me.prettyprint.hector.api.Keyspace;
 import me.prettyprint.hector.api.exceptions.HectorException;
 import me.prettyprint.hector.api.factory.HFactory;
 import me.prettyprint.hom.EntityManagerConfigurator;
 import me.prettyprint.hom.EntityManagerImpl;
+import org.apache.cassandra.thrift.ConsistencyLevel;
 
 public class EntityManagerFactoryImpl implements EntityManagerFactory {
 
@@ -63,10 +67,12 @@ public class EntityManagerFactoryImpl implements EntityManagerFactory {
     log.debug("building EMF");
     return buildEntityManager(entityManagerConfigurator.getKeyspace());
   }
-  
+
   private EntityManagerImpl buildEntityManager(String keyspace) {
-    EntityManagerImpl entityManager = new EntityManagerImpl(HFactory.
-        createKeyspace(keyspace, cluster),
+    Keyspace keyspaceObj = HFactory.createKeyspace(keyspace, cluster);
+    log.debug("Set ConsistencyLevelPolicy for keyspace:{}", keyspace);
+    keyspaceObj.setConsistencyLevelPolicy(ConsistencyLevelPolicyConfigurator.buildConsistencyLevelPolicy(entityManagerConfigurator));
+    EntityManagerImpl entityManager = new EntityManagerImpl(keyspaceObj,
         entityManagerConfigurator.getClasspathPrefix());
     log.debug("Built entityManager {}", entityManager);
     return entityManager;
