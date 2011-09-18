@@ -1,6 +1,7 @@
 package me.prettyprint.hom;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,7 +11,6 @@ import org.apache.commons.lang.StringUtils;
 
 import me.prettyprint.cassandra.service.CassandraHostConfigurator;
 
-import org.apache.cassandra.thrift.ConsistencyLevel;
 import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 public class EntityManagerConfigurator {
     
   private static Logger log = LoggerFactory.getLogger(EntityManagerConfigurator.class);
+  private static final Map<String, String> EMPTY_CREDENTIALS = Collections.emptyMap();
 
   public static final String PROP_PREFIX = "me.prettyprint.hom.";
   public static final String CLASSPATH_PREFIX_PROP = PROP_PREFIX + "classpathPrefix";
@@ -36,6 +37,8 @@ public class EntityManagerConfigurator {
   public static final String CONSISTENCYLEVEL_PROP = PROP_PREFIX + "consistencylevel.";
   public static final String KEYSPACE_CONSISTENCY = CONSISTENCYLEVEL_PROP + "keyspace";
   public static final String COLUMNFAMILIES_CONSISTENCY = CONSISTENCYLEVEL_PROP + "columnfamilies";
+  public static final String SECURITY_NAME_PROP = PROP_PREFIX + "username";
+  public static final String SECURITY_PASS_PROP = PROP_PREFIX + "password";
   
   private final String classpathPrefix;
   private final String clusterName;
@@ -43,6 +46,7 @@ public class EntityManagerConfigurator {
   private CassandraHostConfigurator cassandraHostConfigurator;
   private Map keySpaceConsistency;
   private Map columnFamiliesConsistency;
+  private Map<String, String> AccessMap;
 
   
   /**
@@ -79,6 +83,11 @@ public class EntityManagerConfigurator {
     log.debug("Looking for {}", COLUMNFAMILIES_CONSISTENCY);
     columnFamiliesConsistency = getPropertyGentlyJson(properties, COLUMNFAMILIES_CONSISTENCY, false);
     this.cassandraHostConfigurator = cassandraHostConfigurator;
+    AccessMap = new HashMap<String, String>();
+    log.debug("Looking for {}", SECURITY_NAME_PROP);
+    AccessMap.put("username", getPropertyGently(properties, SECURITY_NAME_PROP, false));
+    log.debug("Looking for {}", SECURITY_PASS_PROP);
+    AccessMap.put("password", getPropertyGently(properties, SECURITY_PASS_PROP, false));
   }
 
   public static Map getJsonPropertyValue(String jsonText) throws ParseException{
@@ -142,6 +151,12 @@ public class EntityManagerConfigurator {
 
   public Map getKeySpaceConsistency() {
     return keySpaceConsistency;
+  }
+
+  public Map getAccessMap() {
+    if(AccessMap.get("username") == null)
+        return EMPTY_CREDENTIALS;
+    return AccessMap;
   }
     
   @Override

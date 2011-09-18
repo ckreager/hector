@@ -12,6 +12,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnitUtil;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.metamodel.Metamodel;
+import me.prettyprint.cassandra.service.FailoverPolicy;
 import me.prettyprint.cassandra.service.OperationType;
 
 import org.apache.commons.lang.StringUtils;
@@ -69,9 +70,12 @@ public class EntityManagerFactoryImpl implements EntityManagerFactory {
   }
 
   private EntityManagerImpl buildEntityManager(String keyspace) {
-    Keyspace keyspaceObj = HFactory.createKeyspace(keyspace, cluster);
-    log.debug("Set ConsistencyLevelPolicy for keyspace:{}", keyspace);
-    keyspaceObj.setConsistencyLevelPolicy(ConsistencyLevelPolicyConfigurator.buildConsistencyLevelPolicy(entityManagerConfigurator));
+    log.debug("Creating keyspace:{}", keyspace);
+    Keyspace keyspaceObj = null;
+    ConsistencyLevelPolicy consistencyLevelPolicy = ConsistencyLevelPolicyConfigurator.buildConsistencyLevelPolicy(entityManagerConfigurator);
+    FailoverPolicy failoverPolicy = FailoverPolicy.ON_FAIL_TRY_ALL_AVAILABLE;
+    Map<String,String> credentials = entityManagerConfigurator.getAccessMap();
+    keyspaceObj = HFactory.createKeyspace(keyspace, cluster, consistencyLevelPolicy, failoverPolicy, credentials);
     EntityManagerImpl entityManager = new EntityManagerImpl(keyspaceObj,
         entityManagerConfigurator.getClasspathPrefix());
     log.debug("Built entityManager {}", entityManager);
